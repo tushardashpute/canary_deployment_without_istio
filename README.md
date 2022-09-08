@@ -1,0 +1,2 @@
+# canary_deployment_without_istio
+canary_deployment_without_istio
