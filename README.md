@@ -4,11 +4,11 @@ This repository contains all resources that are required to test the canary feat
 
 ## Requirements
 * Kubernetes cluster 
-* NGINX Ingress Controller 0.21.0+
 
-
+```
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm install my-ingress-nginx ingress-nginx/ingress-nginx --version 4.2.5
+```
 
 ## Getting Started
 
