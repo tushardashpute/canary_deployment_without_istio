@@ -10,6 +10,12 @@ helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm install my-ingress-nginx ingress-nginx/ingress-nginx --version 4.2.5
 ```
 
+```
+# kubectl get pods
+NAME                                           READY   STATUS    RESTARTS   AGE
+my-ingress-nginx-controller-86b9f55565-4vznt   1/1     Running   0          32s
+```
+
 ## Getting Started
 
 ### Canary Test Scenario
