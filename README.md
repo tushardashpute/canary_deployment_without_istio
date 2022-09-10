@@ -2,6 +2,26 @@
 ## Overview
 This repository contains all resources that are required to test the canary feature of NGINX Ingress Controller. 
 
+
+**What are canary releases?**
+
+Canary release is a technique to reduce the risk of introducing a new software version in production by slowly rolling out the change to a small subset of users, before rolling it out to the entire infrastructure and making it available to everybody.
+
+There are two different kind of canary releases.
+
+1. A weight-based canary release that routes a certain percentage of the traffic to the new release
+2. Let’s call it — user-based routing where a certain Request Header or value in the Cookies decides which version is being addressed
+
+![image](https://user-images.githubusercontent.com/74225291/189477913-36139cde-e2cc-42be-be06-fca0c018290a.png)
+
+Getting Started with canary rollouts on K8s
+
+Will use option 1 to test the canary implemnetaion in this example.The app used for the scenario is a simple go http server with three handlers.
+
+- **/version** returning the the version of the app that actually processed the request to differentiate between both releases, production and canary.
+- **/metrics** to show the amount of calls that have been processed by the container on path /version.
+- **/reset**, as the name suggests, resets the request counter to zero.
+
 ## Requirements
 * Kubernetes cluster 
 
@@ -31,6 +51,39 @@ Create cname record with the ingress load balancer.
 First of all, change the host definition in the ingress manifests ***deploy/prod-ingress.yaml*** and ***deploy/canary-ingress.yaml*** from canary-demo.example.com to your URL
   
 ##### Deploy production release  
+
+
+**1. Create the status quo**
+    Everything starts with a stable version running in production. The example follows the semantic versioning approach with current stable version 1.0.0 running in the namespace “demo-prod”. As there is no canary release deployed to the cluster, X equals “0” resulting in 100% of the traffic being served by the production release. This can be simulated with the following ingress manifest:
+
+    First of all, deploy the namespace “demo-prod” as it is required for the rest of the resources. Continue with creating the deployment, service, and ingress for the production environment. At this point, there is nothing special about the ingress resource.
+
+```
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+  labels:
+    app: app
+    version: 1.0.0
+  name: demo-ingress
+  namespace: demo-prod
+spec:
+  rules:
+  - host: test.tushar10pute.click
+    http:
+      paths:
+      - backend:
+          service:
+             name: demo-prod
+             port: 
+               number: 80
+        path: /
+        pathType: Prefix
+```
+
 Roll-out the stable version 1.0.0 to the cluster
 ```bash
   kubectl apply -f ./deploy/prod-namespace.yaml
@@ -84,6 +137,41 @@ $ curl "http://<your_URL>/reset"
 ```
   
 ##### Canary deployment  
+
+**2. Rollout the canary release**
+
+    Now it is time to do the actual canary deployment. Therefore a second namespace called “demo-canary” is mandatory. Why is that? Eventually, we will create a second ingress resource with the exact same name but including the canary annotations. If we deployed it to one and the same namespace it would change the existing resource which is not desired. Once the namespace has been created, we can push the deployment with the new software version 1.0.1, service, and ingress to the cluster. In the below sample ingress we define X=”20" and thus, route 80% of the workload to the production release which is considered to be stable and the remaining 20% to our freshly deployed canary release.
+
+    Therefore, we have to add two annotations. The first one, nginx.ingress.kubernetes.io/canary: “true”, enables the canary functionality for the ingress. Secondly, we define the share that we want to be served by the canary deployment by adding nginx.ingress.kubernetes.io/canary-weight: “20”.
+
+```
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/canary: "true"
+    nginx.ingress.kubernetes.io/canary-weight: "20"
+  labels:
+    app: demo
+  name: demo-ingress
+  namespace: demo-canary
+spec:
+  rules:
+  - host: test.tushar10pute.click
+    http:
+      paths:
+      - backend:
+          service:
+             name: demo-canary
+             port:
+               number: 80
+        path: /
+        pathType: Prefix
+---
+```
+
 Push the new software version 1.0.1 as a canary deployment to the cluster
 ```bash
   kubectl apply -f ./deploy/canary-namespace.yaml
