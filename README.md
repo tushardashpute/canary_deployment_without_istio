@@ -60,13 +60,23 @@ Execute the following commands to send n=1000 requests to the endpoint
 #!/bin/bash
 for i in {1..1000}
 do
-   curl http://<your_url>/version
+   curl http://<your_url>/version -s -o /dev/null
 done
 
 $ curl -s "http://<your_URL>/metrics" | jq '.calls'
 ```
 If everything is working as expected, the curl command should return "1000".
-  
+
+```
+sh test.sh
+
+curl test.tushar10pute.click/metrics
+{"calls":1000}
+```
+
+<img width="557" alt="image" src="https://user-images.githubusercontent.com/74225291/189476692-8e4141e1-9334-4024-93d3-880075ad97f4.png">
+
+
 ##### Reset request counter  
 Send GET requests to /reset endpoint to set the request counter to zero
 ```bash
@@ -78,10 +88,22 @@ Push the new software version 1.0.1 as a canary deployment to the cluster
 ```bash
   kubectl apply -f ./deploy/canary-namespace.yaml
   kubectl apply -f ./deploy/canary-deployment.yaml,./deploy/canary-service.yaml,./deploy/canary-ingress.yaml
-  sleep 2
+  sleep 15
   kubectl get deploy,svc,ing -n demo-canary
 ```
-  
+
+```
+#   kubectl get deploy,svc,ing -n demo-canary
+NAME                          READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/demo-canary   1/1     1            1           18s
+
+NAME                  TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+service/demo-canary   ClusterIP   10.100.11.252   <none>        80/TCP    18s
+
+NAME                                     CLASS    HOSTS                     ADDRESS                                                                  PORTS   AGE
+ingress.networking.k8s.io/demo-ingress   <none>   test.tushar10pute.click   a67e9bd5912c74b22be1f9b92f11ca88-896411557.us-east-1.elb.amazonaws.com   80      18s
+```
+
 ##### Perform tests  
 Again, start sending traffic to the endpoint
 ```bash
@@ -91,7 +113,9 @@ do
    curl http://<your_url>/version
 done
 ```
-  
+
+
+ 
 ##### Verify the weight split  
 Do a port forward to each of the pods to check the request count
 ```bash
@@ -102,8 +126,14 @@ $ curl -s http://localhost:8081/metrics | jq '.calls'
 ```
 Unless the weight has been changed to a different value, you should see approximately 800 requests being served by the production deployment and the remainig 200 by the canary. 
 
+<img width="1274" alt="image" src="https://user-images.githubusercontent.com/74225291/189477595-17fe0fa8-98d6-421e-b8ae-72bc7ddf8e99.png">
+
+<img width="1272" alt="image" src="https://user-images.githubusercontent.com/74225291/189477624-6259b300-3c43-4a05-84b5-77fae982a2c9.png">
+
+
 ### Delete
 Remove all resource from the cluster 
 ```bash
-$ make clean-up
+$ kubectl delete -f ./deploy/.
+$ helm uninstall my-ingress-nginx
 ```
