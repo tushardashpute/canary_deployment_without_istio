@@ -25,7 +25,12 @@ Roll-out the stable version 1.0.0 to the cluster
 ##### Run tests  
 Execute the following commands to send n=1000 requests to the endpoint
 ```bash
-$ ab -n 1000 -c 100 -s 60 "http://<your_URL>/version"
+#!/bin/bash
+for i in {1..1000}
+do
+   curl http://<your_url>/version
+done
+
 $ curl -s "http://<your_URL>/metrics" | jq '.calls'
 ```
 If everything is working as expected, the curl command should return "1000".
@@ -48,7 +53,11 @@ Push the new software version 1.0.1 as a canary deployment to the cluster
 ##### Perform tests  
 Again, start sending traffic to the endpoint
 ```bash
-$ ab -n 1000 -c 100 -s 60 "http://<your_URL>/version"
+#!/bin/bash
+for i in {1..1000}
+do
+   curl http://<your_url>/version
+done
 ```
   
 ##### Verify the weight split  
