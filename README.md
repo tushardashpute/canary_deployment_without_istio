@@ -16,8 +16,10 @@ First of all, change the host definition in the ingress manifests ***deploy/prod
 Roll-out the stable version 1.0.0 to the cluster
 ```bash
   kubectl apply -f ./deploy/prod-namespace.yaml
-	sleep 2
-	kubectl apply -f ./deploy/prod-deployment.yaml,./deploy/prod-service.yaml,./deploy/prod-ingress.yaml  
+  kubectl apply -f ./deploy/prod-deployment.yaml,./deploy/prod-service.yaml,./deploy/prod-ingress.yaml  
+  sleep 2
+  kubectl get deploy,svc,ing -n demo-prod
+  
 ```
   
 ##### Run tests  
@@ -37,9 +39,10 @@ $ curl "http://<your_URL>/reset"
 ##### Canary deployment  
 Push the new software version 1.0.1 as a canary deployment to the cluster
 ```bash
-	kubectl apply -f ./deploy/canary-namespace.yaml
-	sleep 2
-	kubectl apply -f ./deploy/canary-deployment.yaml,./deploy/canary-service.yaml,./deploy/canary-ingress.yaml
+  kubectl apply -f ./deploy/canary-namespace.yaml
+  kubectl apply -f ./deploy/canary-deployment.yaml,./deploy/canary-service.yaml,./deploy/canary-ingress.yaml
+  sleep 2
+  kubectl get deploy,svc,ing -n demo-canary
 ```
   
 ##### Perform tests  
