@@ -22,8 +22,9 @@ Will use option 1 to test the canary implemnetaion in this example.The app used 
 - **/metrics** to show the amount of calls that have been processed by the container on path /version.
 - **/reset**, as the name suggests, resets the request counter to zero.
 
-## Requirements
-* Kubernetes cluster 
+**Requirements**
+ - Kubernetes cluster 
+ - helm
 
 ```
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
