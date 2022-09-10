@@ -11,9 +11,15 @@ helm install my-ingress-nginx ingress-nginx/ingress-nginx --version 4.2.5
 ```
 
 ```
-# kubectl get pods
+$ kubectl get pods
 NAME                                           READY   STATUS    RESTARTS   AGE
 my-ingress-nginx-controller-86b9f55565-4vznt   1/1     Running   0          32s
+
+$ kubectl get svc
+NAME                                    TYPE           CLUSTER-IP       EXTERNAL-IP                                                              PORT(S)                      AGE
+kubernetes                              ClusterIP      10.100.0.1       <none>                                                                   443/TCP                      35m
+my-ingress-nginx-controller             LoadBalancer   10.100.167.211   **a67e9bd5912c74b22be1f9b92f11ca88-896411557.us-east-1.elb.amazonaws.com**   80:30827/TCP,443:32508/TCP   110s
+my-ingress-nginx-controller-admission   ClusterIP      10.100.65.251    <none>                                                                   443/TCP                      111s
 ```
 
 ## Getting Started
