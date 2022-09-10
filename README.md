@@ -229,6 +229,8 @@ Unless the weight has been changed to a different value, you should see approxim
 <img width="1272" alt="image" src="https://user-images.githubusercontent.com/74225291/189477624-6259b300-3c43-4a05-84b5-77fae982a2c9.png">
 
 
+Looking at these figures, the weight split involves a slight deviation of roughly 1% compared to the initial 80/20 split. For me, tiny enough to call it a success!
+
 ### Delete
 Remove all resource from the cluster 
 ```bash
