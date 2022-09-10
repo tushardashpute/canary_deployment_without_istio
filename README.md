@@ -35,10 +35,24 @@ Roll-out the stable version 1.0.0 to the cluster
 ```bash
   kubectl apply -f ./deploy/prod-namespace.yaml
   kubectl apply -f ./deploy/prod-deployment.yaml,./deploy/prod-service.yaml,./deploy/prod-ingress.yaml  
-  sleep 2
+  sleep 10
   kubectl get deploy,svc,ing -n demo-prod
   
 ```
+  
+```
+#   kubectl get deploy,svc,ing -n demo-prod
+NAME                        READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/demo-prod   1/1     1            1           16s
+
+NAME                TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+service/demo-prod   ClusterIP   10.100.83.121   <none>        80/TCP    16s
+
+NAME                                     CLASS    HOSTS                     ADDRESS   PORTS   AGE
+ingress.networking.k8s.io/demo-ingress   <none>   test.tushar10pute.click             80      16s
+
+```
+
   
 ##### Run tests  
 Execute the following commands to send n=1000 requests to the endpoint
