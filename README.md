@@ -26,10 +26,14 @@ Will use option 1 to test the canary implemnetaion in this example.The app used 
  - Kubernetes cluster 
  - helm
 
+**Deploy nginx-ingress controller**
+
 ```
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm install my-ingress-nginx ingress-nginx/ingress-nginx --version 4.2.5
 ```
+
+Check the status of ingress controller.
 
 ```
 $ kubectl get pods
@@ -41,6 +45,7 @@ NAME                                    TYPE           CLUSTER-IP       EXTERNAL
 my-ingress-nginx-controller             LoadBalancer   10.100.167.211   a67e9bd5912c74b22be1f9b92f11ca88-896411557.us-east-1.elb.amazonaws.com 80:30827/TCP,443:32508/TCP   110s
 my-ingress-nginx-controller-admission   ClusterIP      10.100.65.251    <none>                                                                   443/TCP                      111s
 ```
+
 Create cname record with the ingress load balancer.
 
 <img width="1148" alt="image" src="https://user-images.githubusercontent.com/74225291/189476274-8b7b5522-d58b-4436-bb09-c1314d7a2ef4.png">
@@ -55,9 +60,10 @@ First of all, change the host definition in the ingress manifests ***deploy/prod
 
 
 **1. Create the status quo**
-    Everything starts with a stable version running in production. The example follows the semantic versioning approach with current stable version 1.0.0 running in the namespace “demo-prod”. As there is no canary release deployed to the cluster, X equals “0” resulting in 100% of the traffic being served by the production release. This can be simulated with the following ingress manifest:
 
-    First of all, deploy the namespace “demo-prod” as it is required for the rest of the resources. Continue with creating the deployment, service, and ingress for the production environment. At this point, there is nothing special about the ingress resource.
+Everything starts with a stable version running in production. The example follows the semantic versioning approach with current stable version 1.0.0 running in the namespace “demo-prod”. As there is no canary release deployed to the cluster, X equals “0” resulting in 100% of the traffic being served by the production release. This can be simulated with the following ingress manifest:
+
+First of all, deploy the namespace “demo-prod” as it is required for the rest of the resources. Continue with creating the deployment, service, and ingress for the production environment. At this point, there is nothing special about the ingress resource.
 
 ```
 ---
@@ -109,7 +115,9 @@ ingress.networking.k8s.io/demo-ingress   <none>   test.tushar10pute.click       
 
   
 ##### Run tests  
+
 Execute the following commands to send n=1000 requests to the endpoint
+
 ```bash
 #!/bin/bash
 for i in {1..1000}
@@ -132,6 +140,7 @@ curl test.tushar10pute.click/metrics
 
 
 ##### Reset request counter  
+
 Send GET requests to /reset endpoint to set the request counter to zero
 ```bash
 $ curl "http://<your_URL>/reset"
@@ -141,9 +150,9 @@ $ curl "http://<your_URL>/reset"
 
 **2. Rollout the canary release**
 
-    Now it is time to do the actual canary deployment. Therefore a second namespace called “demo-canary” is mandatory. Why is that? Eventually, we will create a second ingress resource with the exact same name but including the canary annotations. If we deployed it to one and the same namespace it would change the existing resource which is not desired. Once the namespace has been created, we can push the deployment with the new software version 1.0.1, service, and ingress to the cluster. In the below sample ingress we define X=”20" and thus, route 80% of the workload to the production release which is considered to be stable and the remaining 20% to our freshly deployed canary release.
+Now it is time to do the actual canary deployment. Therefore a second namespace called “demo-canary” is mandatory. Why is that? Eventually, we will create a second ingress resource with the exact same name but including the canary annotations. If we deployed it to one and the same namespace it would change the existing resource which is not desired. Once the namespace has been created, we can push the deployment with the new software version 1.0.1, service, and ingress to the cluster. In the below sample ingress we define X=”20" and thus, route 80% of the workload to the production release which is considered to be stable and the remaining 20% to our freshly deployed canary release.
 
-    Therefore, we have to add two annotations. The first one, nginx.ingress.kubernetes.io/canary: “true”, enables the canary functionality for the ingress. Secondly, we define the share that we want to be served by the canary deployment by adding nginx.ingress.kubernetes.io/canary-weight: “20”.
+Therefore, we have to add two annotations. The first one, nginx.ingress.kubernetes.io/canary: “true”, enables the canary functionality for the ingress. Secondly, we define the share that we want to be served by the canary deployment by adding nginx.ingress.kubernetes.io/canary-weight: “20”.
 
 ```
 ---
